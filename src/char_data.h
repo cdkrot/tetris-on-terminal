@@ -4,16 +4,6 @@
 
 #include "stdstyle.h"
 
-/*
- *              COLOR_BLACK
-             COLOR_RED
-             COLOR_GREEN
-             COLOR_YELLOW
-             COLOR_BLUE
-             COLOR_MAGENTA
-             COLOR_CYAN
-             COLOR_WHITE
-*/
 enum color_t
 {
 	red, green, yellow, blue, magenta, cyan, white
