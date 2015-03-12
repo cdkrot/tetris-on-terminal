@@ -44,6 +44,7 @@ class game
 		job_manager job_mgr;
 		
 		int32_t move_horizontal;
+		int32_t move_rotational;
 		bool force_fall;
 		
 		bool is_dead = false;

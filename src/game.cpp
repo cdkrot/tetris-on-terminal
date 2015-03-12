@@ -22,6 +22,7 @@ game::game()
 	
 	cur_figure_mgr.the_game = this;
 	move_horizontal = 0;
+	move_rotational = 0;
 }
 
 game::~game()
@@ -127,10 +128,14 @@ void game::process_input()
 			break; // no input yet.
 		if (ch == 'q' or ch == 'Q')
 			this->stop();
-		if (ch == KEY_LEFT || ch == '<')
+		if (ch == KEY_LEFT || ch == 'a' || ch == 'A')
 			move_horizontal += -1;
-		if (ch == KEY_RIGHT || ch == '>')
+		if (ch == KEY_RIGHT || ch == 'd' || ch == 'D')
 			move_horizontal += +1;
+		if (ch == KEY_DOWN || ch == 'z' || ch == 'Z')
+			move_rotational += -1;
+		if (ch == KEY_UP || ch == 'x' || ch == 'X')
+			move_rotational += +1;
 	}
 }
 
@@ -191,6 +196,16 @@ void cur_figure_manager::update()
 		{
 			cur_figure.move_x_or_collide(the_game->move_horizontal, the_game->game_field);
 			the_game->move_horizontal = 0;
+		}
+		while (the_game->move_rotational < 0)
+		{
+			cur_figure.rotate_bkw(the_game->game_field);
+			the_game->move_rotational++;
+		}
+		while (the_game->move_rotational > 0)
+		{
+			cur_figure.rotate_fwd(the_game->game_field);
+			the_game->move_rotational--;
 		}
 		
 		if (state == 1) // FREEZE.

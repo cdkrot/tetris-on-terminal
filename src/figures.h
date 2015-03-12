@@ -10,22 +10,31 @@
 using std::vector;
 using std::pair;
 
+struct coord_t
+{
+	int32_t x;
+	int32_t y;
+	
+	bool operator<(const coord_t other) const
+	{
+		return x < other.x or (x == other.x and y < other.y);
+	}
+};
+
+
 struct transform
 {
 	int32_t dx;
 	int32_t dy;
-	// describes which cells we need to swap.
-	// first in pair is src cell, the cell, in which was in figure on prev step.
-	// and it is garanteed, that it exists.
-	// [this is an assertion, the whole code makes]
-	// second is dest cell, to swap with.
-	// if it is empty, and exist, then transform will apply ok, otherwise not.
-	// in both pairs, first x, second y.
-	vector<pair<pair<int32_t, int32_t>, pair<int32_t, int32_t>>> transf_data;
+	
+	// describes src cells to dissapear and dst_cells to appear.
+	vector<coord_t> src_cells;
+	vector<coord_t> dst_cells;
 	
 	static transform zero_transform();
 };
 
+typedef std::vector<transform> multitransform;
 
 struct figure
 {
@@ -45,6 +54,7 @@ struct figure
 	private:
 	// returns true if applied succesfully.
 	bool apply_transform(const transform& t, vector<vector<char_data>>& game_field);
+	bool apply_transform(const multitransform& t, vector<vector<char_data>>& game_field);
 	uint32_t type;
 };
 
