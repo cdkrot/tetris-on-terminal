@@ -9,9 +9,11 @@ using std::map;
 using std::pair;
 using std::make_pair;
 
+#define NUM_TYPES 16
+
 figure get_new_rand_figure()
-{
-	figure f(rand() % 8);
+{	
+	figure f(4 * (rand() / (NUM_TYPES / 4)) + rand() % 3);
 	f.x = f.y = 0;
 	return f;
 }
@@ -87,51 +89,89 @@ transform compute_rotate_transformation(bool rotate_fwd, coord_t rot_cent, vecto
 	return res;
 }
 
+vector<coord_t> get_type_image(uint32_t type)
+{
+	static vector<coord_t> dat[] = {
+		{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, // 00
+		{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, // 01
+		{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, // 02
+		{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, // 03
+		{{0, 0}, {1, 0}, {1, 1}, {2, 0}}, // 04
+		{{0, 1}, {1, 0}, {1, 1}, {1, 2}}, // 05
+		{{0, 1}, {1, 0}, {1, 1}, {2, 1}}, // 06
+		{{0, 0}, {0, 1}, {0, 2}, {1, 1}}, // 07
+		{{0, 0}, {0, 1}, {0, 2}, {1, 2}}, // 08
+		{{0, 0}, {0, 1}, {1, 0}, {2, 0}}, // 09
+		{{0, 0}, {1, 0}, {1, 1}, {1, 2}}, // 10
+		{{0, 1}, {1, 1}, {2, 0}, {2, 1}}, // 11
+		{{0, 2}, {1, 0}, {1, 1}, {1, 2}}, // 12
+		{{0, 0}, {0, 1}, {1, 1}, {2, 1}}, // 13
+		{{0, 0}, {0, 1}, {0, 2}, {1, 0}}, // 14
+		{{0, 0}, {1, 0}, {2, 0}, {2, 1}}  // 15
+	};
+	return dat[type];
+}
+
+vector<coord_t> get_rotation_points_by_type(uint32_t type)
+{
+	static vector<coord_t> dat[] = {
+		{}, // 0
+		{}, // 1
+		{}, // 2
+		{}, // 3
+		{{1, 0}}, // 4
+		{{1, 1}}, // 5
+		{{0, 1}}, // 6
+		{{1, 1}}, // 7
+		
+		{{0, 1}}, // 8
+		{{1, 0}}, // 9
+		{{1, 1}}, // 10
+		{{1, 1}}, // 11
+		
+		{{1, 1}}, // 12
+		{{1, 1}}, // 13
+		{{0, 1}}, // 14
+		{{1, 0}}
+	};
+	return dat[type];
+}
+
 multitransform get_transform_by_type_and_id(uint32_t type, uint32_t id)
 {
 	// we could handle it all in on array, but it is much simpler to maintain
 	// it's data when they are separate.
 	static bool initialized = false;
-	static multitransform MOV_LFT[8];
-	static multitransform MOV_RGH[8];
-	static multitransform MOV_DWN[8];
-	static multitransform MOV_BCK[8];
-	static multitransform MOV_FWD[8];
+	static multitransform MOV_LFT[NUM_TYPES];
+	static multitransform MOV_RGH[NUM_TYPES];
+	static multitransform MOV_DWN[NUM_TYPES];
+	static multitransform MOV_BCK[NUM_TYPES];
+	static multitransform MOV_FWD[NUM_TYPES];
 	
 	if (!initialized)
 	{
 		// Welcome to the Legion of Chaos!
-		// 0-3 is square.
-		MOV_FWD[0] = MOV_FWD[1] = MOV_FWD[2] = MOV_FWD[3] = {transform::zero_transform()};
-		MOV_BCK[0] = MOV_BCK[1] = MOV_BCK[2] = MOV_BCK[3] = {transform::zero_transform()};
-		MOV_DWN[0] = MOV_DWN[1] = MOV_DWN[2] = MOV_DWN[3] =
-			{compute_move_transform( 0, 1, {{0, 0}, {0, 1}, {1, 0}, {1, 1}})};
-		MOV_LFT[0] = MOV_LFT[1] = MOV_LFT[2] = MOV_LFT[3] = 
-			{compute_move_transform(-1, 0, {{0, 0}, {0, 1}, {1, 0}, {1, 1}})};
-		MOV_RGH[0] = MOV_RGH[1] = MOV_RGH[2] = MOV_RGH[3] = 
-			{compute_move_transform(+1, 0, {{0, 0}, {0, 1}, {1, 0}, {1, 1}})};
+		// see for the previous versions of this place,
+		// really, it is worth it.
+		for (uint32_t i = 0; i != NUM_TYPES; i++)
+		{
+			MOV_DWN[i] = {compute_move_transform( 0, 1, get_type_image(i))};
+			MOV_LFT[i] = {compute_move_transform(-1, 0, get_type_image(i))};
+			MOV_RGH[i] = {compute_move_transform(+1, 0, get_type_image(i))};
 			
-		// 4-7 is "T"
-		MOV_DWN[4] = {compute_move_transform( 0, 1, {{0, 0}, {1, 0}, {1, 1}, {2, 0}})};
-		MOV_LFT[4] = {compute_move_transform(-1, 0, {{0, 0}, {1, 0}, {1, 1}, {2, 0}})};
-		MOV_RGH[4] = {compute_move_transform(+1, 0, {{0, 0}, {1, 0}, {1, 1}, {2, 0}})};
-		MOV_FWD[4] = {compute_rotate_transformation(1, {1, 0}, {{0, 0}, {1, 0}, {1, 1}, {2, 0}})};
-		MOV_BCK[4] = {compute_rotate_transformation(0, {1, 0}, {{0, 0}, {1, 0}, {1, 1}, {2, 0}})};
-		MOV_DWN[5] = {compute_move_transform( 0, 1, {{0, 1}, {1, 0}, {1, 1}, {1, 2}})};
-		MOV_LFT[5] = {compute_move_transform(-1, 0, {{0, 1}, {1, 0}, {1, 1}, {1, 2}})};
-		MOV_RGH[5] = {compute_move_transform(+1, 0, {{0, 1}, {1, 0}, {1, 1}, {1, 2}})};
-		MOV_FWD[5] = {compute_rotate_transformation(1, {1, 1}, {{0, 1}, {1, 0}, {1, 1}, {1, 2}})};
-		MOV_BCK[5] = {compute_rotate_transformation(0, {1, 1}, {{0, 1}, {1, 0}, {1, 1}, {1, 2}})};
-		MOV_DWN[6] = {compute_move_transform( 0, 1, {{0, 1}, {1, 0}, {1, 1}, {2, 1}})};
-		MOV_LFT[6] = {compute_move_transform(-1, 0, {{0, 1}, {1, 0}, {1, 1}, {2, 1}})};
-		MOV_RGH[6] = {compute_move_transform(+1, 0, {{0, 1}, {1, 0}, {1, 1}, {2, 1}})};
-		MOV_FWD[6] = {compute_rotate_transformation(1, {1, 1}, {{0, 1}, {1, 0}, {1, 1}, {2, 1}})};
-		MOV_BCK[6] = {compute_rotate_transformation(0, {1, 1}, {{0, 1}, {1, 0}, {1, 1}, {2, 1}})};
-		MOV_DWN[7] = {compute_move_transform( 0, 1, {{0, 0}, {0, 1}, {0, 2}, {1, 1}})};
-		MOV_LFT[7] = {compute_move_transform(-1, 0, {{0, 0}, {0, 1}, {0, 2}, {1, 1}})};
-		MOV_RGH[7] = {compute_move_transform(+1, 0, {{0, 0}, {0, 1}, {0, 2}, {1, 1}})};
-		MOV_FWD[7] = {compute_rotate_transformation(1, {0, 1}, {{0, 0}, {0, 1}, {0, 2}, {1, 1}})};
-		MOV_BCK[7] = {compute_rotate_transformation(0, {0, 1}, {{0, 0}, {0, 1}, {0, 2}, {1, 1}})};
+			auto rot_points = get_rotation_points_by_type(i);
+			if (rot_points.empty())
+				MOV_FWD[i] = MOV_BCK[i] = {transform::zero_transform()};
+			else
+			{
+				MOV_FWD[i] = MOV_BCK[i] = {};
+				for (auto e: rot_points)
+				{
+					MOV_FWD[i].push_back(compute_rotate_transformation(1, e, get_type_image(i)));
+					MOV_BCK[i].push_back(compute_rotate_transformation(0, e, get_type_image(i)));
+				}
+			}
+		}
 		
 		initialized = true;
 	}
@@ -150,25 +190,10 @@ multitransform get_transform_by_type_and_id(uint32_t type, uint32_t id)
 }
 
 void figure::spawn(vector<vector<char_data>>& game_field)
-{
-	static vector<coord_t> coords[8];
-	static bool initialized = false;
-	
-	if (!initialized)
-	{
-		coords[0] = coords[1] = coords[2] = coords[3] = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
-		coords[4] = {{0, 0}, {1, 0}, {1, 1}, {2, 0}};
-		coords[5] = {{0, 1}, {1, 0}, {1, 1}, {1, 2}};
-		coords[6] = {{0, 1}, {1, 0}, {1, 1}, {2, 1}};
-		coords[7] = {{0, 0}, {0, 1}, {0, 2}, {1, 1}};
-		
-		initialized = true;
-	}
-	
-	assert(type < 8);
+{	
 	char_data ch = {get_random_possible_char(), get_random_possible_color()};
 	
-	for (coord_t c: coords[type])
+	for (coord_t c: get_type_image(type))
 		game_field[c.y][c.x] = ch;
 }
 
