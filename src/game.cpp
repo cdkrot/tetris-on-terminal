@@ -5,7 +5,9 @@
 #include "terminal.h"
 #include <ncurses.h>
 #include <set>
+#include <string>
 
+using std::string;
 using std::set;
 
 game::game()
@@ -53,7 +55,7 @@ void game::update_game()
 	//
 	
 	ticks_count++;
-	while (ticks_count > (1u << log_ticks_count))
+	while (ticks_count / 40 > (1u << log_ticks_count))
 		log_ticks_count++;
 	
 	if (cur_figure_mgr.state == 0)
@@ -138,7 +140,11 @@ void game::render()
 	terminal_put_string("Tetris On Terminal\n");
 	terminal_put_string("           By cdkrot\n");
 	terminal_put_string("=====================\n");
-	terminal_put_string("Your score: " + std::to_string(user_score) + "\n", (is_dead) ? color_t::red : color_t::white);
+	const std::string dat[4] = {"00", "25", "50", "75"};
+	std::string score_string = std::to_string(user_score / 4) + "." + dat[user_score % 4];
+	std::string multipl_string = std::to_string(log_ticks_count / 4) + "." + dat[log_ticks_count % 4];
+	terminal_put_string("Your score: " + score_string + ", multiplier: " + multipl_string
+		+ "\n", (is_dead) ? color_t::red : color_t::white);
 	
 	// render here
 	// TODO:

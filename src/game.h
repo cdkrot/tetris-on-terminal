@@ -48,7 +48,7 @@ class game
 		
 		bool is_dead = false;
 		uint32_t ticks_count = 0;
-		uint32_t log_ticks_count = 1;
+		uint32_t log_ticks_count = 4;
 		uint32_t user_score = 0;
 		
 		cur_figure_manager cur_figure_mgr;
