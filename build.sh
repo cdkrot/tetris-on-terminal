@@ -40,7 +40,7 @@ done
 
 echo "## Linking"
 
-g++ $OBJS -lcurses -o ./bin/program
+g++ $OBJS -lcurses -o ./bin/tetris-on-terminal
 
 if [ $? -ne 0 ]
 then
