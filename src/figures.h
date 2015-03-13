@@ -49,7 +49,7 @@ struct figure
 	bool rotate_bkw(vector<vector<char_data>>& game_field);
 	bool rotate_fwd(vector<vector<char_data>>& game_field);
 	
-	
+	uint32_t get_type(){return type;}
 	void spawn(vector<vector<char_data>>& game_field);
 	private:
 	// returns true if applied succesfully.
@@ -59,6 +59,6 @@ struct figure
 };
 
 figure get_new_rand_figure();
-
+vector<coord_t> get_type_image(uint32_t type);
 
 #endif

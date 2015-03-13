@@ -6,9 +6,12 @@
 #include <ncurses.h>
 #include <set>
 #include <string>
+#include <map>
 
+using std::map;
 using std::string;
 using std::set;
+using std::max;
 
 game::game()
 {
@@ -162,6 +165,19 @@ void game::render()
 		+ "\n", (is_dead) ? color_t::red : color_t::white);
 	
 	// render here
+	map<uint32_t, uint32_t> the_map;
+	color_t fig_color;
+	if (cur_figure_mgr.state != 0)
+	{
+		auto fig = cur_figure_mgr.cur_figure;
+		auto fig_img = get_type_image(fig.get_type());
+		for (auto crd: fig_img)
+			if (the_map.find(fig.x + crd.x) == the_map.end())
+				the_map.emplace(fig.x + crd.x, fig.y + crd.y);
+			else
+				the_map[fig.x + crd.x] = max(the_map[fig.x + crd.x], fig.y + crd.y); // the deepest.
+		fig_color = game_field[fig.y + fig_img[0].y][fig.x + fig_img[0].x].color;
+	}
 	for (uint32_t i = 0; i != GAME_HEIGHT; i++)
 	{
 		if (i >= GAME_HEIGHT - GAME_REAL_HEIGHT)
@@ -170,7 +186,16 @@ void game::render()
 			terminal_put_char(' ');
 		
 		for (uint32_t j = 0; j != GAME_WIDTH; j++)
-			terminal_put_char(game_field[i][j].character, game_field[i][j].color);
+		{
+			if (game_field[i][j].character == ' ' and the_map.find(j) != the_map.end() and the_map[j] < i)
+				terminal_put_char('.', fig_color);
+			else
+			{
+				if (game_field[i][j].character != ' ' and the_map.find(j) != the_map.end() and the_map[j] < i)
+					the_map.erase(the_map.find(j));
+				terminal_put_char(game_field[i][j].character, game_field[i][j].color);
+			}
+		}
 		
 		if (i >= GAME_HEIGHT - GAME_REAL_HEIGHT)
 			terminal_put_string("#\n", is_dead ? color_t::red : color_t::white);
