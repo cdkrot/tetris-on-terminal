@@ -42,6 +42,9 @@ void game::stop()
 
 void game::update_game()
 {
+	if (is_paused)
+		return;
+	
 	if (is_dead)
 		return;
 	
@@ -128,6 +131,13 @@ void game::process_input()
 			break; // no input yet.
 		if (ch == 'q' or ch == 'Q')
 			this->stop();
+		if (ch == ' ')
+		{
+			is_paused = !is_paused;
+			continue;
+		}
+		if (is_paused)
+			continue;
 		if (ch == KEY_LEFT || ch == 'a' || ch == 'A')
 			move_horizontal += -1;
 		if (ch == KEY_RIGHT || ch == 'd' || ch == 'D')
@@ -148,11 +158,10 @@ void game::render()
 	const std::string dat[4] = {"00", "25", "50", "75"};
 	std::string score_string = std::to_string(user_score / 4) + "." + dat[user_score % 4];
 	std::string multipl_string = std::to_string(log_ticks_count / 4) + "." + dat[log_ticks_count % 4];
-	terminal_put_string("Your score: " + score_string + ", multiplier: " + multipl_string
+	terminal_put_string("Your score: " + score_string + ", multiplier: " + multipl_string + (is_paused ? " [PAUSED]" : "")
 		+ "\n", (is_dead) ? color_t::red : color_t::white);
 	
 	// render here
-	// TODO:
 	for (uint32_t i = 0; i != GAME_HEIGHT; i++)
 	{
 		if (i >= GAME_HEIGHT - GAME_REAL_HEIGHT)

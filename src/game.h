@@ -43,6 +43,7 @@ class game
 		vector<vector<char_data>> game_field;
 		job_manager job_mgr;
 		
+		bool is_paused = false;
 		int32_t move_horizontal;
 		int32_t move_rotational;
 		bool force_fall;
