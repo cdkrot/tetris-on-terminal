@@ -159,6 +159,7 @@ void game::render()
 	terminal_put_string("Tetris On Terminal\n");
 	terminal_put_string("           By cdkrot\n");
 	terminal_put_string("=====================\n");
+	terminal_put_string("Controls: arrow keys or wasd to move, space to pause, <ENTER> to force fall.\n");
 	const std::string dat[4] = {"00", "25", "50", "75"};
 	std::string score_string = std::to_string(user_score / 4) + "." + dat[user_score % 4];
 	std::string multipl_string = std::to_string(log_ticks_count / 4) + "." + dat[log_ticks_count % 4];
