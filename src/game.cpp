@@ -126,7 +126,6 @@ void game::check_dead()
 void game::process_input()
 {
 	int ch;
-	force_fall = false;
 	while (true)
 	{
 		ch = getch();
@@ -141,6 +140,8 @@ void game::process_input()
 		}
 		if (is_paused)
 			continue;
+		if (ch == '\n')
+			force_fall = true;
 		if (ch == KEY_LEFT || ch == 'a' || ch == 'A')
 			move_horizontal += -1;
 		if (ch == KEY_RIGHT || ch == 'd' || ch == 'D')
@@ -223,6 +224,7 @@ void cur_figure_manager::update()
 			cur_figure.spawn(the_game->game_field);
 			ticks = FREEZE_TICKS;
 		}
+		the_game->force_fall = false;
 	}
 	else 
 	{
@@ -255,7 +257,15 @@ void cur_figure_manager::update()
 				ticks--;
 			else
 			{
-				if (cur_figure.move_y_or_collide(the_game->game_field) == false) // collided.
+				if (the_game->force_fall)
+				{
+					while (cur_figure.move_y_or_collide(the_game->game_field) == true){}
+					ticks = NO_SPAWN_TICKS;
+					state = 0;
+					the_game->force_fall = false;
+				}
+				
+				else if (cur_figure.move_y_or_collide(the_game->game_field) == false) // collided.
 				{
 					ticks = NO_SPAWN_TICKS;
 					state = 0;
