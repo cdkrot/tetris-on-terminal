@@ -45,7 +45,7 @@ int main()
 		clock_t current = clock();
 		if (current < next_run)
 		{
-			timespec req = {0, (next_run - current)};
+			timespec req = {0, static_cast<long>(next_run - current)};
 			nanosleep(&req, NULL);
 		}
 	}
