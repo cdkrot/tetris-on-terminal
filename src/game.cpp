@@ -146,9 +146,9 @@ void game::process_input()
 			move_horizontal += -1;
 		if (ch == KEY_RIGHT || ch == 'd' || ch == 'D')
 			move_horizontal += +1;
-		if (ch == KEY_DOWN || ch == 'z' || ch == 'Z')
+		if (ch == KEY_DOWN || ch == 's' || ch == 'S')
 			move_rotational += -1;
-		if (ch == KEY_UP || ch == 'x' || ch == 'X')
+		if (ch == KEY_UP || ch == 'w' || ch == 'W')
 			move_rotational += +1;
 	}
 }
@@ -159,11 +159,11 @@ void game::render()
 	terminal_put_string("Tetris On Terminal\n");
 	terminal_put_string("           By cdkrot\n");
 	terminal_put_string("=====================\n");
-	terminal_put_string("Controls: arrow keys or wasd to move, space to pause, <ENTER> to force fall.\n");
+	terminal_put_string("Controls: arrow keys or wasd to move or rotate, space to pause, <ENTER> to force fall, q to quit.\n");
 	const std::string dat[4] = {"00", "25", "50", "75"};
 	std::string score_string = std::to_string(user_score / 4) + "." + dat[user_score % 4];
 	std::string multipl_string = std::to_string(log_ticks_count / 4) + "." + dat[log_ticks_count % 4];
-	terminal_put_string("Your score: " + score_string + ", multiplier: " + multipl_string + (is_paused ? " [PAUSED]" : "")
+	terminal_put_string("Your score: " + score_string + ", multiplier: " + multipl_string + (is_paused ? " [PAUSED]" : "") + (is_dead ? " [GAME END]" : "")
 		+ "\n", (is_dead) ? color_t::red : color_t::white);
 	
 	// render here
