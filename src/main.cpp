@@ -14,6 +14,8 @@ void handle_signal(int)
 
 int main()
 {
+	// according to POSIX CLOCKS_PER_SEC should be equal to specified value.
+	// unfortunately not all systems, are posix.
 	assert(CLOCKS_PER_SEC == 1000000);
 	terminal_init();
 	signal(SIGINT, handle_signal);
@@ -31,22 +33,30 @@ int main()
 		prev = cur;
 		lag += elapsed;
 		
-		the_game.process_input();
-		
-		while (lag >= CLOCKS_PER_UPD)
+		if (lag >= clock_t(5 * CLOCKS_PER_SEC))
 		{
-			lag -= CLOCKS_PER_UPD;
-			the_game.update_game();
+			lag = clock_t(0); // warning: can't keep up.
+			return 0; // TODO: revert.
 		}
-		
-		the_game.render();
-		
-		clock_t next_run = cur + CLOCKS_PER_UPD;
-		clock_t current = clock();
-		if (current < next_run)
+		if (lag >= CLOCKS_PER_UPD)
 		{
-			timespec req = {0, static_cast<long>(next_run - current)};
+			while (lag >= CLOCKS_PER_UPD)
+			{
+				lag -= CLOCKS_PER_UPD;
+				// this is not a canonical game loop, but we need this accuracy here.
+				the_game.process_input();
+				the_game.update_game();
+			}
+			
+			the_game.render();
+		}
+		else
+		{
+			// lag < CLOCKS_PER_UPD
+			long nanosec = (CLOCKS_PER_UPD - lag) * 1000;
+			timespec req = {0, nanosec};
 			nanosleep(&req, NULL);
+			lag = CLOCKS_PER_UPD;
 		}
 	}
 	
