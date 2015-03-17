@@ -12,8 +12,8 @@ using std::make_pair;
 #define NUM_TYPES 28
 
 figure get_new_rand_figure()
-{	
-	figure f(4 * (rand() % (NUM_TYPES / 4)) + rand() % 4);
+{
+	figure f(rand() % NUM_TYPES);
 	f.x = f.y = 0;
 	return f;
 }
