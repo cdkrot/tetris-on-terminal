@@ -5,7 +5,6 @@
 #include "stdstyle.h"
 #include "char_data.h"
 #include "figures.h"
-#include "jobs.h"
 #include <vector>
 using std::vector;
 
@@ -41,7 +40,6 @@ class game
 	private:
 		bool is_running;
 		vector<vector<char_data>> game_field;
-		job_manager job_mgr;
 		
 		bool is_paused = false;
 		int32_t move_horizontal;

@@ -51,8 +51,6 @@ void game::update_game()
 	if (is_dead)
 		return;
 	
-	job_mgr.invoke();
-	
 	// check for lines we can destroy.
 	// score is calculated by this system:
 	//
