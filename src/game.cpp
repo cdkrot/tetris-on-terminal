@@ -24,8 +24,7 @@ game::game()
 	}
 	
 	cur_figure_mgr.the_game = this;
-	move_horizontal = 0;
-	move_rotational = 0;
+	input_mgr.the_game = this;
 }
 
 game::~game()
@@ -123,6 +122,11 @@ void game::check_dead()
 
 void game::process_input()
 {
+	input_mgr.process_input();
+}
+
+void input_manager::process_input()
+{
 	int ch;
 	while (true)
 	{
@@ -130,13 +134,13 @@ void game::process_input()
 		if (ch == ERR)
 			break; // no input yet.
 		if (ch == 'q' or ch == 'Q')
-			this->stop();
+			the_game->stop();
 		if (ch == ' ')
 		{
-			is_paused = !is_paused;
+			the_game->is_paused = !the_game->is_paused;
 			continue;
 		}
-		if (is_paused)
+		if (the_game->is_paused)
 			continue;
 		if (ch == '\n')
 			force_fall = true;
@@ -223,24 +227,24 @@ void cur_figure_manager::update()
 			cur_figure.spawn(the_game->game_field);
 			ticks = FREEZE_TICKS;
 		}
-		the_game->force_fall = false;
+		the_game->input_mgr.force_fall = false;
 	}
 	else 
 	{
-		if (the_game->move_horizontal != 0)
+		if (the_game->input_mgr.move_horizontal != 0)
 		{
-			cur_figure.move_x_or_collide(the_game->move_horizontal, the_game->game_field);
-			the_game->move_horizontal = 0;
+			cur_figure.move_x_or_collide(the_game->input_mgr.move_horizontal, the_game->game_field);
+			the_game->input_mgr.move_horizontal = 0;
 		}
-		while (the_game->move_rotational < 0)
+		while (the_game->input_mgr.move_rotational < 0)
 		{
 			cur_figure.rotate_bkw(the_game->game_field);
-			the_game->move_rotational++;
+			the_game->input_mgr.move_rotational++;
 		}
-		while (the_game->move_rotational > 0)
+		while (the_game->input_mgr.move_rotational > 0)
 		{
 			cur_figure.rotate_fwd(the_game->game_field);
-			the_game->move_rotational--;
+			the_game->input_mgr.move_rotational--;
 		}
 		
 		if (state == 1) // FREEZE.
@@ -256,12 +260,12 @@ void cur_figure_manager::update()
 				ticks--;
 			else
 			{
-				if (the_game->force_fall)
+				if (the_game->input_mgr.force_fall)
 				{
 					while (cur_figure.move_y_or_collide(the_game->game_field) == true){}
 					ticks = NO_SPAWN_TICKS;
 					state = 0;
-					the_game->force_fall = false;
+					the_game->input_mgr.force_fall = false;
 				}
 				
 				else if (cur_figure.move_y_or_collide(the_game->game_field) == false) // collided.

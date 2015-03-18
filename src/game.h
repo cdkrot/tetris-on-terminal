@@ -25,6 +25,18 @@ class cur_figure_manager
 		clock_t ticks = NO_SPAWN_TICKS;
 };
 
+class input_manager
+{
+	public:
+		input_manager(): move_horizontal(0), move_rotational(0), force_fall(false) {}
+		void process_input();
+		
+		int32_t move_horizontal;
+		int32_t move_rotational;
+		bool force_fall;
+		game* the_game;
+};
+
 class game
 {
 	public:
@@ -42,18 +54,17 @@ class game
 		vector<vector<char_data>> game_field;
 		
 		bool is_paused = false;
-		int32_t move_horizontal;
-		int32_t move_rotational;
-		bool force_fall;
 		
 		bool is_dead = false;
 		uint32_t ticks_count = 0;
 		uint32_t log_ticks_count = 4;
 		uint32_t user_score = 0;
 		
+		input_manager      input_mgr;
 		cur_figure_manager cur_figure_mgr;
 		
 		friend cur_figure_manager;
+		friend input_manager;
 };
 
 #endif
