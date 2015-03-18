@@ -36,6 +36,20 @@ class menu_credits: public iscreen
 		virtual void render();
 	private:
 		screen_manager* mgr;
+		bool is_running = true;
+};
+
+class menu_controls: public iscreen
+{
+	public:
+		menu_controls(screen_manager* mgr): mgr(mgr){}
+		virtual bool should_run();
+		virtual void update_game();
+		virtual void process_input();
+		virtual void render();
+	private:
+		screen_manager* mgr;
+		bool is_running = true;
 };
 
 #endif

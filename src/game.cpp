@@ -146,6 +146,11 @@ void input_manager::process_input()
 void game::render()
 {
 	terminal_reset();
+	terminal_put_string("Tetris On Terminal v2.0\n");
+	terminal_put_string("           By cdkrot\n");
+	terminal_put_string("=====================\n");
+	terminal_put_string("\nGame\n", color_t::yellow);
+
 	const std::string dat[4] = {"00", "50"};
 	std::string score_string = std::to_string(user_score / 2) + "." + dat[user_score % 2];
 	std::string multipl_string = std::to_string(cur_figure_mgr.get_figure_modifier() / 2) + "."
