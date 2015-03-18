@@ -1,16 +1,8 @@
 #include <iostream>
 #include <time.h>
-#include <signal.h>
 #include "game.h"
 #include "terminal.h"
 #include "stdstyle.h"
-#include <unistd.h>
-
-void handle_signal(int)
-{
-	terminal_shutdown();
-	exit(0);
-}
 
 int main()
 {
@@ -18,7 +10,6 @@ int main()
 	// unfortunately not all systems, are posix.
 	assert(CLOCKS_PER_SEC == 1000000);
 	terminal_init();
-	signal(SIGINT, handle_signal);
 	srand(time(0));
 	
 	// thanks to gameprogrammingpatterns.com for the gameloop.
@@ -36,7 +27,6 @@ int main()
 		if (lag >= clock_t(5 * CLOCKS_PER_SEC))
 		{
 			lag = clock_t(0); // warning: can't keep up.
-			return 0; // TODO: revert.
 		}
 		if (lag >= CLOCKS_PER_UPD)
 		{
@@ -60,7 +50,7 @@ int main()
 		}
 	}
 	
-	handle_signal(0); // just shutdown.
+	terminal_shutdown();
 	
 	return 0;
 }
