@@ -13,7 +13,7 @@ using std::string;
 using std::set;
 using std::max;
 
-game::game()
+game::game(game_settings gm_settings): gm_settings(gm_settings)
 {
 	state = 0; // running.
 	game_field.resize(GAME_HEIGHT);
@@ -24,6 +24,7 @@ game::game()
 	}
 	
 	cur_figure_mgr.the_game = this;
+	cur_figure_mgr.set_wait_spwn();
 	input_mgr.the_game = this;
 }
 
@@ -204,12 +205,18 @@ void game::render()
 void cur_figure_manager::set_freeze()
 {
 	state = 1;
-	ticks = FREEZE_TICKS;
+	ticks = the_game->get_game_settings().freeze_ticks;
 	cur_figure = get_new_rand_figure();
 	cur_figure.spawn(the_game->game_field);
 	figures_count++;
 	if (figures_count > (1u << log_figures_count))
 		log_figures_count++;
+}
+
+void cur_figure_manager::set_wait_spwn()
+{
+	state = 0;
+	ticks = the_game->get_game_settings().no_spawn_ticks;
 }
 
 void cur_figure_manager::update()
@@ -269,7 +276,7 @@ void cur_figure_manager::update()
 				else if (cur_figure.move_y_or_collide(the_game->game_field) == false) // collided.
 					set_wait_spwn();
 				else
-					ticks = TICKS_PER_FALL;
+					ticks = the_game->get_game_settings().ticks_per_fall;
 			}
 		}
 	}

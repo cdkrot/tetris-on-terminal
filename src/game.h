@@ -5,6 +5,7 @@
 #include "stdstyle.h"
 #include "char_data.h"
 #include "figures.h"
+#include "game_settings.h"
 #include <vector>
 using std::vector;
 
@@ -13,7 +14,7 @@ class game;
 class cur_figure_manager
 {
 	public:
-		cur_figure_manager() = default;
+		cur_figure_manager() = default; // note: after creation you need to call set_wait_spwn().
 		~cur_figure_manager() = default;
 		
 		void update();
@@ -22,14 +23,14 @@ class cur_figure_manager
 		bool is_wait_spwn(){return state == 0;}
 		bool is_freeze(){return state == 1;}
 		bool is_fall(){return state == 2;}
-		void set_wait_spwn(){state = 0; ticks = NO_SPAWN_TICKS;}
+		void set_wait_spwn();
 		void set_freeze();
 		void set_fall(){state = 2;}
 	private:
 		uint32_t figures_count = 0;
 		uint32_t log_figures_count = 2;
-		uint32_t state = 0; // 0 - WAIT_SPWN, 1 - FREEZE, 2 - FALL.
-		clock_t ticks = NO_SPAWN_TICKS;
+		uint32_t state; // 0 - WAIT_SPWN, 1 - FREEZE, 2 - FALL.
+		clock_t ticks;
 		game* the_game = nullptr;
 		figure cur_figure = figure(UINT32_MAX);
 		friend game;
@@ -52,7 +53,7 @@ class input_manager
 class game
 {
 	public:
-		game();
+		game(game_settings gm_settings);
 		~game();
 		
 		void update_game();
@@ -68,11 +69,13 @@ class game
 		void set_paused() {state = 1;}
 		void set_stopped() {state = 2;}
 		void set_dead() {state = 3;}
+		game_settings get_game_settings(){return gm_settings;}
 	private:
 		uint32_t state; // 0: RUNNING, 1: PAUSED, 2: STOPPED, 3: DEAD.
 		vector<vector<char_data>> game_field;
 		
 		uint32_t user_score = 0;
+		game_settings gm_settings;
 		
 		input_manager      input_mgr;
 		cur_figure_manager cur_figure_mgr;
