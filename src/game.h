@@ -43,19 +43,23 @@ class game
 		game();
 		~game();
 		
-		bool should_run();
-		void stop();
 		void update_game();
 		void process_input();
 		void render();
 		void check_dead();
+		bool should_run() {return state != 2;}
+		bool is_running() {return state == 0;}
+		bool is_paused() {return state == 1;}
+		bool is_stopped() {return state == 2;}
+		bool is_dead() {return state == 3;}
+		void set_running() {state = 0;}
+		void set_paused() {state = 1;}
+		void set_stopped() {state = 2;}
+		void set_dead() {state = 3;}
 	private:
-		bool is_running;
+		uint32_t state; // 0: RUNNING, 1: PAUSED, 2: STOPPED, 3: DEAD.
 		vector<vector<char_data>> game_field;
 		
-		bool is_paused = false;
-		
-		bool is_dead = false;
 		uint32_t ticks_count = 0;
 		uint32_t log_ticks_count = 4;
 		uint32_t user_score = 0;

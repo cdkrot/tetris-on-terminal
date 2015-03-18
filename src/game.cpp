@@ -15,7 +15,7 @@ using std::max;
 
 game::game()
 {
-	is_running = true;
+	state = 0; // running.
 	game_field.resize(GAME_HEIGHT);
 	for (vector<char_data>& line: game_field)
 	{
@@ -32,22 +32,10 @@ game::~game()
 	printf("# Bye #\n");
 }
 
-bool game::should_run()
-{
-	return is_running;
-}
-
-void game::stop()
-{
-	is_running = false;
-}
 
 void game::update_game()
 {
-	if (is_paused)
-		return;
-	
-	if (is_dead)
+	if (!is_running())
 		return;
 	
 	// check for lines we can destroy.
@@ -115,7 +103,7 @@ void game::check_dead()
 		for (auto c: game_field[i])
 			if (c.character != ' ')
 			{
-				is_dead = true;
+				set_dead();
 				return;
 			}
 }
@@ -134,13 +122,16 @@ void input_manager::process_input()
 		if (ch == ERR)
 			break; // no input yet.
 		if (ch == 'q' or ch == 'Q')
-			the_game->stop();
+			the_game->set_stopped();
 		if (ch == ' ')
 		{
-			the_game->is_paused = !the_game->is_paused;
+			if (the_game->is_running())
+				the_game->set_paused();
+			else if (the_game->is_paused())
+				the_game->set_running();
 			continue;
 		}
-		if (the_game->is_paused)
+		if (!the_game->is_running())
 			continue;
 		if (ch == '\n')
 			force_fall = true;
@@ -165,8 +156,9 @@ void game::render()
 	const std::string dat[4] = {"00", "25", "50", "75"};
 	std::string score_string = std::to_string(user_score / 4) + "." + dat[user_score % 4];
 	std::string multipl_string = std::to_string(log_ticks_count / 4) + "." + dat[log_ticks_count % 4];
-	terminal_put_string("Your score: " + score_string + ", multiplier: " + multipl_string + (is_paused ? " [PAUSED]" : "") + (is_dead ? " [GAME END]" : "")
-		+ "\n", (is_dead) ? color_t::red : color_t::white);
+	std::string statuses[4] = {"RUNNING", "PAUSED", "STOPPED", "DEAD"};
+	terminal_put_string("Your score: " + score_string + ", multiplier: " + multipl_string + " [" + statuses[state] + "]"
+		+ "\n", is_dead() ? color_t::red : color_t::white);
 	
 	// render here
 	map<uint32_t, uint32_t> the_map;
@@ -185,7 +177,7 @@ void game::render()
 	for (uint32_t i = 0; i != GAME_HEIGHT; i++)
 	{
 		if (i >= GAME_HEIGHT - GAME_REAL_HEIGHT)
-			terminal_put_char('#', is_dead ? color_t::red : color_t::white);
+			terminal_put_char('#', is_dead() ? color_t::red : color_t::white);
 		else
 			terminal_put_char(' ');
 		
@@ -202,12 +194,12 @@ void game::render()
 		}
 		
 		if (i >= GAME_HEIGHT - GAME_REAL_HEIGHT)
-			terminal_put_string("#\n", is_dead ? color_t::red : color_t::white);
+			terminal_put_string("#\n", is_dead() ? color_t::red : color_t::white);
 		else
 			terminal_put_string("\n");
 	}
 	for (uint32_t j = 0; j != GAME_WIDTH + 2; j++)
-		terminal_put_char('#', is_dead ? color_t::red : color_t::white);
+		terminal_put_char('#', is_dead() ? color_t::red : color_t::white);
 	terminal_flush();
 }
 
@@ -220,7 +212,7 @@ void cur_figure_manager::update()
 		else
 		{
 			the_game->check_dead();
-			if (the_game->is_dead)
+			if (the_game->is_dead())
 				return;
 			state = 1;
 			cur_figure = get_new_rand_figure();
