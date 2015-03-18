@@ -42,15 +42,11 @@ void game::update_game()
 	// score is calculated by this system:
 	//
 	// if you destroyed N rows in one turn, the one row will affect score like this:
-	// score += N * (num_diffrent_chars_in_this_row) * time_modifier.
-	// time_modifier grows like logarithm.
+	// score += 2 ^ (N - 1) * (num_diffrent_chars_in_this_row) * figure_modifier.
+	// figure_modifier grows like logarithm from count of figures.
 	//
 	
-	ticks_count++;
-	while (ticks_count / 40 > (1u << log_ticks_count))
-		log_ticks_count++;
-	
-	if (cur_figure_mgr.state == 0)
+	if (cur_figure_mgr.is_wait_spwn())
 	{
 		auto check_row = [](const vector<char_data>& v) -> bool
 		{
@@ -91,7 +87,8 @@ void game::update_game()
 				break;
 			i--;
 		}
-		user_score += n_multiplier * delta_score * log_ticks_count;
+		if (n_multiplier != 0)
+			user_score += (1 << (n_multiplier - 1)) * delta_score * cur_figure_mgr.get_figure_modifier();
 	}
 	
 	cur_figure_mgr.update();
@@ -153,9 +150,10 @@ void game::render()
 	terminal_put_string("           By cdkrot\n");
 	terminal_put_string("=====================\n");
 	terminal_put_string("Controls: arrow keys or wasd to move or rotate, space to pause, <ENTER> to force fall, q to quit.\n");
-	const std::string dat[4] = {"00", "25", "50", "75"};
-	std::string score_string = std::to_string(user_score / 4) + "." + dat[user_score % 4];
-	std::string multipl_string = std::to_string(log_ticks_count / 4) + "." + dat[log_ticks_count % 4];
+	const std::string dat[4] = {"00", "50"};
+	std::string score_string = std::to_string(user_score / 2) + "." + dat[user_score % 2];
+	std::string multipl_string = std::to_string(cur_figure_mgr.get_figure_modifier() / 2) + "."
+		+ dat[cur_figure_mgr.get_figure_modifier() % 2];
 	std::string statuses[4] = {"RUNNING", "PAUSED", "STOPPED", "DEAD"};
 	terminal_put_string("Your score: " + score_string + ", multiplier: " + multipl_string + " [" + statuses[state] + "]"
 		+ "\n", is_dead() ? color_t::red : color_t::white);
@@ -203,9 +201,20 @@ void game::render()
 	terminal_flush();
 }
 
+void cur_figure_manager::set_freeze()
+{
+	state = 1;
+	ticks = FREEZE_TICKS;
+	cur_figure = get_new_rand_figure();
+	cur_figure.spawn(the_game->game_field);
+	figures_count++;
+	if (figures_count > (1u << log_figures_count))
+		log_figures_count++;
+}
+
 void cur_figure_manager::update()
 {
-	if (state == 0) // NO_SPAWN
+	if (is_wait_spwn())
 	{
 		if (ticks != 0)
 			ticks--;
@@ -214,11 +223,10 @@ void cur_figure_manager::update()
 			the_game->check_dead();
 			if (the_game->is_dead())
 				return;
-			state = 1;
-			cur_figure = get_new_rand_figure();
-			cur_figure.spawn(the_game->game_field);
-			ticks = FREEZE_TICKS;
+			set_freeze();
 		}
+		the_game->input_mgr.move_horizontal = 0;
+		the_game->input_mgr.move_rotational = 0;
 		the_game->input_mgr.force_fall = false;
 	}
 	else 
@@ -239,12 +247,12 @@ void cur_figure_manager::update()
 			the_game->input_mgr.move_rotational--;
 		}
 		
-		if (state == 1) // FREEZE.
+		if (is_freeze()) // FREEZE.
 		{
 			if (ticks != 0)
 				ticks--;
 			else
-				state = 2;
+				set_fall();
 		}
 		else // FALL.
 		{
@@ -255,16 +263,11 @@ void cur_figure_manager::update()
 				if (the_game->input_mgr.force_fall)
 				{
 					while (cur_figure.move_y_or_collide(the_game->game_field) == true){}
-					ticks = NO_SPAWN_TICKS;
-					state = 0;
-					the_game->input_mgr.force_fall = false;
+					set_wait_spwn();
 				}
 				
 				else if (cur_figure.move_y_or_collide(the_game->game_field) == false) // collided.
-				{
-					ticks = NO_SPAWN_TICKS;
-					state = 0;
-				}
+					set_wait_spwn();
 				else
 					ticks = TICKS_PER_FALL;
 			}

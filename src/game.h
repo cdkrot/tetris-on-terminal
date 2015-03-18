@@ -17,12 +17,22 @@ class cur_figure_manager
 		~cur_figure_manager() = default;
 		
 		void update();
+		uint32_t get_figure_modifier(){return log_figures_count;}
 		
-		figure cur_figure = figure(UINT32_MAX);
-		
-		game* the_game = nullptr;
+		bool is_wait_spwn(){return state == 0;}
+		bool is_freeze(){return state == 1;}
+		bool is_fall(){return state == 2;}
+		void set_wait_spwn(){state = 0; ticks = NO_SPAWN_TICKS;}
+		void set_freeze();
+		void set_fall(){state = 2;}
+	private:
+		uint32_t figures_count = 0;
+		uint32_t log_figures_count = 2;
 		uint32_t state = 0; // 0 - WAIT_SPWN, 1 - FREEZE, 2 - FALL.
 		clock_t ticks = NO_SPAWN_TICKS;
+		game* the_game = nullptr;
+		figure cur_figure = figure(UINT32_MAX);
+		friend game;
 };
 
 class input_manager
@@ -34,7 +44,9 @@ class input_manager
 		int32_t move_horizontal;
 		int32_t move_rotational;
 		bool force_fall;
+	private:
 		game* the_game;
+		friend game;
 };
 
 class game
@@ -60,8 +72,6 @@ class game
 		uint32_t state; // 0: RUNNING, 1: PAUSED, 2: STOPPED, 3: DEAD.
 		vector<vector<char_data>> game_field;
 		
-		uint32_t ticks_count = 0;
-		uint32_t log_ticks_count = 4;
 		uint32_t user_score = 0;
 		
 		input_manager      input_mgr;
