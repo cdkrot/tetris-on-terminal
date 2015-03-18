@@ -1,6 +1,8 @@
-#ifndef GAME_SETTINGS_H
+#ifndef __GAME_SETTINGS_H
 
-#define GAME_SETTINGS_H
+#define __GAME_SETTINGS_H
+
+#include "stdstyle.h"
 
 struct game_settings
 {

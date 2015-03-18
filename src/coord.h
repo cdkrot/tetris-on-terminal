@@ -1,6 +1,8 @@
-#ifndef COORD_H
+#ifndef __COORD_H
 
-#define COORD_H
+#define __COORD_H
+
+#include "stdstyle.h"
 
 struct coord_t
 {
