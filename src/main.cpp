@@ -6,9 +6,6 @@
 
 int main()
 {
-	// according to POSIX CLOCKS_PER_SEC should be equal to specified value.
-	// unfortunately not all systems, are posix.
-	assert(CLOCKS_PER_SEC == 1000000);
 	terminal_init();
 	srand(time(0));
 	
@@ -43,7 +40,9 @@ int main()
 		else
 		{
 			// lag < CLOCKS_PER_UPD
-			long nanosec = (CLOCKS_PER_UPD - lag) * 1000;
+			
+			// it is expected to CLOCKS_PER_SEC to be equal 10^6, but it is not required.
+			long nanosec = (CLOCKS_PER_UPD - lag) * (1000000000 / CLOCKS_PER_SEC);
 			timespec req = {0, nanosec};
 			nanosleep(&req, NULL);
 			lag = CLOCKS_PER_UPD;
