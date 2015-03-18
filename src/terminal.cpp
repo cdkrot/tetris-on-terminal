@@ -13,7 +13,7 @@ decltype(COLOR_PAIR(0)) colort_to_colorpair(color_t t)
 		return COLOR_PAIR(1);
 	if (t == color_t::green)
 		return COLOR_PAIR(2);
-	if (t == color_t::yellow)
+	if (t == color_t::yellow || t == color_t::brown)
 		return COLOR_PAIR(3);
 	if (t == color_t::blue)
 		return COLOR_PAIR(4);
@@ -68,7 +68,11 @@ void terminal_put_char(char c)
 
 void terminal_put_char(char ch, color_t col)
 {
+	if (col == color_t::yellow)
+		attron(A_BOLD);
 	addch(ch | colort_to_colorpair(col));
+	if (col == color_t::yellow)
+		attroff(A_BOLD);
 }
 
 void terminal_endline()

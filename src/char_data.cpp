@@ -12,6 +12,6 @@ char get_random_possible_char()
 color_t get_random_possible_color()
 {
 	// sorry, i don't like electronic blue color.
-	color_t dat[] = {color_t::red, color_t::green, color_t::yellow, color_t::magenta, color_t::cyan, color_t::white};
-	return dat[rand() % 6];
+	color_t dat[] = {color_t::red, color_t::green, color_t::yellow, color_t::magenta, color_t::cyan, color_t::white, color_t::brown};
+	return dat[rand() % 7];
 }

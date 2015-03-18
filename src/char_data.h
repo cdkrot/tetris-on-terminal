@@ -6,7 +6,7 @@
 
 enum color_t
 {
-	red, green, yellow, blue, magenta, cyan, white
+	red, green, yellow, blue, magenta, cyan, white, brown
 };
 
 char get_random_possible_char();
