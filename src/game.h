@@ -6,6 +6,7 @@
 #include "char_data.h"
 #include "figures.h"
 #include "game_settings.h"
+#include "Iscreen.h"
 #include <vector>
 using std::vector;
 
@@ -50,15 +51,15 @@ class input_manager
 		friend game;
 };
 
-class game
+class game: public iscreen
 {
 	public:
 		game(game_settings gm_settings);
 		~game();
 		
-		void update_game();
-		void process_input();
-		void render();
+		virtual void update_game();
+		virtual void process_input();
+		virtual void render();
 		void check_dead();
 		bool should_run() {return state != 2;}
 		bool is_running() {return state == 0;}

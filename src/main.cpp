@@ -1,16 +1,12 @@
-#include <iostream>
+#include <memory>
 #include <time.h>
-#include "game.h"
 #include "terminal.h"
+#include "Iscreen.h"
+#include "main_menu.h"
 #include "stdstyle.h"
 
 int main()
 {
-	// no_spawn_ticks - freeze_ticks - ticks_per_fall - rainbow_mode
-	const game_settings normal  = {12, 25, 06, false};
-	const game_settings hard    = {03,  25, 04, false};
-	const game_settings rainbow = {01,  25, 04, true };
-	
 	terminal_init();
 	srand(time(0));
 	
@@ -18,8 +14,9 @@ int main()
 	const clock_t CLOCKS_PER_UPD = CLOCKS_PER_SEC / TICKS_PER_SEC;
 	clock_t prev = clock();
 	clock_t lag = 0;
-	game the_game(normal);
-	while (the_game.should_run())
+	screen_manager scr_mgr;
+	scr_mgr.push_screen(std::shared_ptr<iscreen>(new main_menu(&scr_mgr)));
+	while (scr_mgr.should_run())
 	{
 		clock_t cur = clock();
 		clock_t elapsed = cur - prev;
@@ -36,11 +33,11 @@ int main()
 			{
 				lag -= CLOCKS_PER_UPD;
 				// this is not a canonical game loop, but we need this accuracy here.
-				the_game.process_input();
-				the_game.update_game();
+				scr_mgr.process_input();
+				scr_mgr.update_game();
 			}
 			
-			the_game.render();
+			scr_mgr.render();
 		}
 		else
 		{
@@ -55,6 +52,7 @@ int main()
 	}
 	
 	terminal_shutdown();
+	printf("# Bye #\n");
 	
 	return 0;
 }
