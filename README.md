@@ -6,6 +6,7 @@ Tetis-on-terminal is a tetris game with CLI interface. I offer you classic tetri
 ## How to install.
 
 To get the tetris-on-terminal you need this dependencies:
+
 1. Unix-like environment.
 2. Ncurses library.
 3. C++11 compiler (for example g++).
