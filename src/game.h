@@ -62,7 +62,7 @@ class rainbow_feature
 		uint32_t ticks_per_invert;
 		game* the_game;
 		bool in_invert;
-		std::vector<vector<char_data>> blackout;
+		char_data blackout;
 		std::map<char_data, char_data> the_mapping;
 		std::vector<char_data> possible_symbols;
 };

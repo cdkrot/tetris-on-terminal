@@ -295,13 +295,7 @@ rainbow_feature::rainbow_feature(game* the_game): the_game(the_game)
 		ticks_per_invert += rand() % settings.ticks_per_invert_rand_fact;
 	in_invert = false;
 	
-	blackout.resize(GAME_HEIGHT);
-	for (vector<char_data>& line: blackout)
-	{
-		line.resize(GAME_WIDTH);
-		for (char_data& c: line)
-			c = char_data{get_random_possible_char(), get_random_possible_color()};
-	}
+	blackout = char_data{get_random_possible_char(), get_random_possible_color()};
 	
 	for (color_t col: get_all_possible_colors())
 		for (char c: get_all_possible_chars())
@@ -319,11 +313,9 @@ void rainbow_feature::update()
 	if (ticks_per_rainbow == 0)
 	{
 		if (in_invert)
-			for (vector<char_data>& line: blackout)
-				for (char_data& c: line)
-					c = char_data{get_random_possible_char(), get_random_possible_color()};
-		std::random_shuffle(possible_symbols.begin(), possible_symbols.end());
+			blackout = char_data{get_random_possible_char(), get_random_possible_color()};
 		
+		std::random_shuffle(possible_symbols.begin(), possible_symbols.end());
 		{
 			auto it = the_mapping.begin();
 			for (uint32_t i = 0; i != possible_symbols.size(); ++i, ++it)
@@ -348,7 +340,7 @@ char_data rainbow_feature::transform(const vector<vector<char_data>>& game_field
 {
 	if (in_invert)
 		if (game_field[y][x].character == ' ')
-			return blackout[y][x];
+			return blackout;
 		else
 			return char_data::space();
 	else
