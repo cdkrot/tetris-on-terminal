@@ -68,7 +68,7 @@ void main_menu::render()
 	for (uint32_t i = 0; i < 3; i++)
 	{
 		terminal_put_string("[");
-		color_t bright_color = (i != 3) ? color_t::yellow : color_t::red;
+		color_t bright_color = (i != 2) ? color_t::yellow : color_t::red;
 		terminal_put_string(dat2[i], (sel == i + 3) ? bright_color: color_t::white);
 		terminal_put_string("]\n");
 	}
@@ -143,7 +143,7 @@ void menu_controls::render()
 	terminal_put_string("           By cdkrot\n");
 	terminal_put_string("=====================\n");
 	terminal_put_string("\nControls\n", color_t::yellow);
-	terminal_put_string("<-, ->, A, D to move left right\n");
+	terminal_put_string("<-, ->, A, D to move left or right\n");
 	terminal_put_string("up, down, W, S, to rotate\n");
 	terminal_put_string("Enter to force figure to fall\n");
 	terminal_put_string("Space to pause the game\n");
