@@ -8,7 +8,7 @@
 #include "game_settings.h"
 #include "Iscreen.h"
 #include <vector>
-using std::vector;
+#include <map>
 
 class game;
 
@@ -51,6 +51,22 @@ class input_manager
 		friend game;
 };
 
+class rainbow_feature
+{
+	public:
+		rainbow_feature(game* the_game);
+		void update();
+		char_data transform(const vector<vector<char_data>>& game_field, uint32_t x, uint32_t y);
+	private:
+		uint32_t ticks_per_rainbow;
+		uint32_t ticks_per_invert;
+		game* the_game;
+		bool in_invert;
+		std::vector<vector<char_data>> blackout;
+		std::map<char_data, char_data> the_mapping;
+		std::vector<char_data> possible_symbols;
+};
+
 class game: public iscreen
 {
 	public:
@@ -73,14 +89,16 @@ class game: public iscreen
 		game_settings get_game_settings(){return gm_settings;}
 	private:
 		uint32_t state; // 0: RUNNING, 1: PAUSED, 2: STOPPED, 3: DEAD.
-		vector<vector<char_data>> game_field;
+		std::vector<std::vector<char_data>> game_field;
 		
 		uint32_t user_score = 0;
 		game_settings gm_settings;
 		
 		input_manager      input_mgr;
 		cur_figure_manager cur_figure_mgr;
+		rainbow_feature    rainbow_feat;
 		
+		friend rainbow_feature;
 		friend cur_figure_manager;
 		friend input_manager;
 };

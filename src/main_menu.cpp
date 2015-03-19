@@ -32,7 +32,7 @@ void main_menu::process_input()
 			if (sel == 1)
 				mgr->push_screen(std::shared_ptr<iscreen>(new game(hard)));
 			if (sel == 2)
-				{}// rainbow not supported yet.// mgr->push_screen(std::shared_ptr<iscreen>(new game(rainbow)));
+				mgr->push_screen(std::shared_ptr<iscreen>(new game(rainbow)));
 			if (sel == 3)
 				mgr->push_screen(std::shared_ptr<iscreen>(new menu_controls(mgr)));
 			if (sel == 4)

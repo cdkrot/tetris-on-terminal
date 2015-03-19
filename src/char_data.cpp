@@ -5,13 +5,21 @@
 
 char get_random_possible_char()
 {
-	const char* str = "X#@Z%&+O";
-	return str[rand() % 8];
+	return get_all_possible_chars()[rand() % get_all_possible_chars().size()];
+}
+
+std::string get_all_possible_chars()
+{
+	return "X#@Z%&+O";
 }
 
 color_t get_random_possible_color()
 {
+	return get_all_possible_colors()[rand() % get_all_possible_colors().size()];
+}
+
+std::vector<color_t> get_all_possible_colors()
+{
 	// sorry, i don't like electronic blue color.
-	color_t dat[] = {color_t::red, color_t::green, color_t::yellow, color_t::magenta, color_t::cyan, color_t::white, color_t::brown};
-	return dat[rand() % 7];
+	return {color_t::red, color_t::green, color_t::yellow, color_t::magenta, color_t::cyan, color_t::white, color_t::brown};
 }

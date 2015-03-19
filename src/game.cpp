@@ -13,7 +13,7 @@ using std::string;
 using std::set;
 using std::max;
 
-game::game(game_settings gm_settings): gm_settings(gm_settings)
+game::game(game_settings gm_settings): gm_settings(gm_settings), rainbow_feat(this)
 {
 	state = 0; // running.
 	game_field.resize(GAME_HEIGHT);
@@ -91,6 +91,7 @@ void game::update_game()
 			user_score += (1 << (n_multiplier - 1)) * delta_score * cur_figure_mgr.get_figure_modifier();
 	}
 	
+	rainbow_feat.update();
 	cur_figure_mgr.update();
 }
 
@@ -182,13 +183,14 @@ void game::render()
 		
 		for (uint32_t j = 0; j != GAME_WIDTH; j++)
 		{
-			if (game_field[i][j].character == ' ' and the_map.find(j) != the_map.end() and the_map[j] < i)
+			if (gm_settings.ticks_per_rainbow == UINT32_MAX and game_field[i][j].character == ' ' and the_map.find(j) != the_map.end() and the_map[j] < i)
 				terminal_put_char('.', fig_color);
 			else
 			{
 				if (game_field[i][j].character != ' ' and the_map.find(j) != the_map.end() and the_map[j] < i)
 					the_map.erase(the_map.find(j));
-				terminal_put_char(game_field[i][j].character, game_field[i][j].color);
+				auto e = rainbow_feat.transform(game_field, j, i);
+				terminal_put_char(e.character, e.color);
 			}
 		}
 		
@@ -280,4 +282,78 @@ void cur_figure_manager::update()
 			}
 		}
 	}
+}
+
+rainbow_feature::rainbow_feature(game* the_game): the_game(the_game)
+{
+	auto settings = the_game->get_game_settings();
+	ticks_per_rainbow = settings.ticks_per_rainbow;
+	if (settings.ticks_per_rainbow_rand_fact != 0)
+		ticks_per_rainbow += rand() % settings.ticks_per_rainbow_rand_fact;
+	ticks_per_invert  = settings.ticks_per_invert;
+	if (settings.ticks_per_invert_rand_fact != 0)
+		ticks_per_invert += rand() % settings.ticks_per_invert_rand_fact;
+	in_invert = false;
+	
+	blackout.resize(GAME_HEIGHT);
+	for (vector<char_data>& line: blackout)
+	{
+		line.resize(GAME_WIDTH);
+		for (char_data& c: line)
+			c = char_data{get_random_possible_char(), get_random_possible_color()};
+	}
+	
+	for (color_t col: get_all_possible_colors())
+		for (char c: get_all_possible_chars())
+		{
+			possible_symbols.push_back(char_data{c, col});
+			the_mapping[char_data{c, col}] = char_data{c, col};
+		}
+	
+}
+
+void rainbow_feature::update()
+{
+	auto settings = the_game->get_game_settings();
+	
+	if (ticks_per_rainbow == 0)
+	{
+		if (in_invert)
+			for (vector<char_data>& line: blackout)
+				for (char_data& c: line)
+					c = char_data{get_random_possible_char(), get_random_possible_color()};
+		std::random_shuffle(possible_symbols.begin(), possible_symbols.end());
+		
+		{
+			auto it = the_mapping.begin();
+			for (uint32_t i = 0; i != possible_symbols.size(); ++i, ++it)
+				it->second = possible_symbols[i];
+		}
+		
+		ticks_per_rainbow = settings.ticks_per_rainbow + rand() % settings.ticks_per_rainbow_rand_fact;
+	}
+	else
+		ticks_per_rainbow--;
+	
+	if (ticks_per_invert == 0)
+	{
+		in_invert = !in_invert;
+		ticks_per_invert = settings.ticks_per_invert  + rand() % settings.ticks_per_invert_rand_fact;
+	}
+	else
+		ticks_per_invert--;
+}
+
+char_data rainbow_feature::transform(const vector<vector<char_data>>& game_field, uint32_t x, uint32_t y)
+{
+	if (in_invert)
+		if (game_field[y][x].character == ' ')
+			return blackout[y][x];
+		else
+			return char_data::space();
+	else
+		if (game_field[y][x].character == ' ')
+			return game_field[y][x];
+		else
+			return the_mapping[game_field[y][x]];
 }

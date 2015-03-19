@@ -2,6 +2,8 @@
 
 #define __CHAR_DATA_H
 
+#include <vector>
+#include <string>
 #include "stdstyle.h"
 
 enum color_t
@@ -11,6 +13,8 @@ enum color_t
 
 char get_random_possible_char();
 color_t get_random_possible_color();
+std::string get_all_possible_chars();
+std::vector<color_t> get_all_possible_colors();
 
 struct char_data
 {

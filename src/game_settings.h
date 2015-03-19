@@ -9,7 +9,12 @@ struct game_settings
 	uint32_t no_spawn_ticks;
 	uint32_t freeze_ticks;
 	uint32_t ticks_per_fall;
-	bool rainbow_mode;
+	
+	// rainbow config.
+	uint32_t ticks_per_rainbow;
+	uint32_t ticks_per_rainbow_rand_fact;
+	uint32_t ticks_per_invert;
+	uint32_t ticks_per_invert_rand_fact;
 };
 
 #endif
