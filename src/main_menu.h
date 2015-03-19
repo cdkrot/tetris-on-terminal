@@ -20,9 +20,9 @@ class main_menu: public iscreen
 		bool is_running = true;
 		
 		// no_spawn_ticks - freeze_ticks - ticks_per_fall - rainbow_mode
-		const game_settings normal  = {12, 25, 06, UINT32_MAX, 0, UINT32_MAX, 0};
-		const game_settings hard    = {02,  25, 04, UINT32_MAX, 0, UINT32_MAX, 0};
-		const game_settings rainbow = {05,  25, 04, 20, 40, 160, 160};
+		const game_settings normal  = {12, 25, 07, UINT32_MAX, 0, UINT32_MAX, 0};
+		const game_settings hard    = {02,  25, 05, UINT32_MAX, 0, UINT32_MAX, 0};
+		const game_settings rainbow = {05,  25, 05, 20, 40, 160, 160};
 
 };
 
