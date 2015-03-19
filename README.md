@@ -1,15 +1,23 @@
-# Hello on tetris-on-terminal, this readme is almost empty now,
-but it will be fixed in future.
+# Hello on tetris-on-terminal
+Tetis-on-terminal is a tetris game with CLI interface. I offer you classic tetris and cool "rainbow" mode. Try it out.
 
-## How to build / download / install / etc.
+![Classic mode in tetris-on-terminal](./image.png)
 
-### Step 1: download srces.
-$ git clone https://github.com/cdkrot/tetris-on-terminal
+## How to install.
 
-$ cd tetris-on-terminal
+To get the tetris-on-terminal you need this dependencies:
+1. Unix-like environment.
+2. Ncurses library.
+3. C++11 compiler (for example g++).
 
-### Step 2: compile (you need to have modern enough g++ and ncurses lib)
-$ ./build.sh
+### Step 1: download sources.
+    $ git clone https://github.com/cdkrot/tetris-on-terminal
+    $ cd tetris-on-terminal
+
+### Step 2: compile.
+    $ ./build.sh
 
 ### Step 3: run.
-$ ./bin/tetris-on-terminal
+    $ ./bin/tetris-on-terminal
+
+### Step 4: enjoy!
