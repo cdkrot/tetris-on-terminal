@@ -1,10 +1,10 @@
 #include <ncurses.h>
 #include <memory>
 #include <string>
-#include "game.h"
-#include "terminal.h"
-#include "main_menu.h"
-#include "stdstyle.h"
+#include "./game.h"
+#include "./terminal.h"
+#include "./main_menu.h"
+#include "./stdstyle.h"
 
 
 bool main_menu::should_run()

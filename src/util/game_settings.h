@@ -2,7 +2,7 @@
 
 #define __GAME_SETTINGS_H
 
-#include "stdstyle.h"
+#include "./stdstyle.h"
 
 struct game_settings
 {

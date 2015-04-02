@@ -1,12 +1,12 @@
-#include "stdstyle.h"
-#include <stdio.h>
-#include <algorithm>
-#include "game.h"
-#include "terminal.h"
 #include <ncurses.h>
 #include <set>
 #include <string>
 #include <map>
+#include <stdio.h>
+#include <algorithm>
+#include "./game.h"
+#include "./terminal.h"
+#include "./stdstyle.h"
 
 using std::map;
 using std::string;

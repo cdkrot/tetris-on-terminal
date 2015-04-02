@@ -4,7 +4,7 @@
 
 #include <vector>
 #include <string>
-#include "stdstyle.h"
+#include "./stdstyle.h"
 
 enum color_t
 {

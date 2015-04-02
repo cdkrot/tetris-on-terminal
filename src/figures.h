@@ -4,9 +4,10 @@
 
 #include <utility>
 #include <vector>
-#include "char_data.h"
-#include "stdstyle.h"
-#include "coord.h"
+#include "./util/char_data.h"
+#include "./util/coord.h"
+#include "./stdstyle.h"
+
 
 using std::vector;
 using std::pair;

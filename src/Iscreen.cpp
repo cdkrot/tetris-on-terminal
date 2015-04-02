@@ -1,5 +1,5 @@
-#include "stdstyle.h"
-#include "Iscreen.h"
+#include "./stdstyle.h"
+#include "./Iscreen.h"
 
 
 void screen_manager::pop_up()

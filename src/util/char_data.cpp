@@ -1,5 +1,5 @@
-#include "stdstyle.h"
-#include "char_data.h"
+#include "./stdstyle.h"
+#include "./char_data.h"
 
 
 

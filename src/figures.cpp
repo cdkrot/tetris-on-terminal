@@ -1,5 +1,5 @@
-#include "stdstyle.h"
-#include "figures.h"
+#include "./stdstyle.h"
+#include "./figures.h"
 #include <utility>
 #include <map>
 #include <algorithm>

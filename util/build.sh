@@ -36,7 +36,13 @@ for SRC in $CPP_SRCS
 do
 	echo "# source: $SRC"
 	OUT=$(echo $SRC | sed -e "s:./src:./obj:" | sed -e "s:.cpp$:.o:")
-	g++ $CPP_FLAGS -c $SRC -o $OUT
+	
+	if [ ! -d $(dirname $OUT) ]
+	then
+		mkdir -p $(dirname $OUT)
+	fi
+	
+	g++ $CPP_FLAGS -c -I src $SRC -o $OUT
 	if [ $? -ne 0 ]
 	then
 		echo "## Suspended build due to errors"

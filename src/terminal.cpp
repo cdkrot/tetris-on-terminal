@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <ncurses.h>
 #include <stdlib.h>
-#include "stdstyle.h"
+#include "./stdstyle.h"
 
 decltype(COLOR_PAIR(0)) colort_to_colorpair(color_t t)
 {

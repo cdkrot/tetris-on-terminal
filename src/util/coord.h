@@ -2,7 +2,7 @@
 
 #define __COORD_H
 
-#include "stdstyle.h"
+#include "./stdstyle.h"
 
 struct coord_t
 {

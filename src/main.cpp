@@ -1,9 +1,9 @@
 #include <memory>
 #include <time.h>
-#include "terminal.h"
-#include "Iscreen.h"
-#include "main_menu.h"
-#include "stdstyle.h"
+#include "./terminal.h"
+#include "./Iscreen.h"
+#include "./main_menu.h"
+#include "./stdstyle.h"
 
 int main()
 {
