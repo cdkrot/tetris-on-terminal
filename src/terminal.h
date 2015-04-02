@@ -3,9 +3,9 @@
 
 #define __TERMINAL_H
 
-#include "char_data.h"
 #include <string>
-#include "stdstyle.h"
+#include "./util/char_data.h"
+#include "./stdstyle.h"
 
 void terminal_init();
 void terminal_reset();

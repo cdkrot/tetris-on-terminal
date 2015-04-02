@@ -2,9 +2,10 @@
 
 #define __MAIN_MENU_H
 
-#include "stdstyle.h"
-#include "game_settings.h"
-#include "Iscreen.h"
+#include "./util/game_settings.h"
+#include "./Iscreen.h"
+#include "./stdstyle.h"
+
 
 class main_menu: public iscreen
 {

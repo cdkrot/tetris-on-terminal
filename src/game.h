@@ -2,13 +2,14 @@
 
 #define __GAME_H
 
-#include "stdstyle.h"
-#include "char_data.h"
-#include "figures.h"
-#include "game_settings.h"
-#include "Iscreen.h"
 #include <vector>
 #include <map>
+#include "./util/char_data.h"
+#include "./util/game_settings.h"
+#include "./figures.h"
+#include "./Iscreen.h"
+#include "./stdstyle.h"
+
 
 class game;
 

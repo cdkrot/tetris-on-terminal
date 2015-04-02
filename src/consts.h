@@ -2,7 +2,7 @@
 
 #define __SIZE_CONFIG_H
 
-#include "stdstyle.h"
+#include "./stdstyle.h"
 
 #define GAME_WIDTH       16
 #define GAME_HEIGHT      24

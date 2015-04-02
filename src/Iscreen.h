@@ -2,9 +2,9 @@
 
 #define __ISCREEN_H
 
-#include "stdstyle.h"
 #include <stack>
 #include <memory>
+#include "./stdstyle.h"
 
 class iscreen
 {
