@@ -1,4 +1,7 @@
 #!/bin/sh
+# configurable build script.
+# configuration is done by build-DBG.sh and build-REL.sh
+
 
 echo "## building"
 if [ ! -d obj ]
@@ -33,7 +36,7 @@ for SRC in $CPP_SRCS
 do
 	echo "# source: $SRC"
 	OUT=$(echo $SRC | sed -e "s:./src:./obj:" | sed -e "s:.cpp$:.o:")
-	g++ -Wall -Wextra -g -c -std=c++11 $SRC -o $OUT
+	g++ $CPP_FLAGS $SRC -o $OUT
 	if [ $? -ne 0 ]
 	then
 		echo "## Suspended build due to errors"
@@ -44,7 +47,7 @@ done
 
 echo "## Linking"
 
-g++ $OBJS -lcurses -o ./bin/tetris-on-terminal
+g++ $OBJS $LINK_FLAGS -o ./bin/tetris-on-terminal
 
 if [ $? -ne 0 ]
 then
