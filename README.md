@@ -12,13 +12,19 @@ To get the tetris-on-terminal you need this dependencies:
 3. C++11 compiler (for example g++).
 
 ### Step 1: download sources.
+```sh
     $ git clone https://github.com/cdkrot/tetris-on-terminal
     $ cd tetris-on-terminal
+```
 
 ### Step 2: compile.
-    $ ./build.sh
+```sh
+    $ ./build-REL.sh    # ./build-DBG.sh if you want to get dev binary.
+```
 
 ### Step 3: run.
+```sh
     $ ./bin/tetris-on-terminal
+```
 
 ### Step 4: enjoy!
