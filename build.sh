@@ -11,6 +11,7 @@ then
 		exit 1
 	fi
 fi
+
 if [ ! -d bin ]
 then
 	mkdir bin
@@ -22,6 +23,9 @@ then
 	fi
 fi
 
+echo "## generating src/buildconf.h"
+./util/gen-buildconf.sh  $1> src/buildconf.h
+echo "## compiling"
 
 CPP_SRCS=$(find ./src -name "*.cpp")
 OBJS=""

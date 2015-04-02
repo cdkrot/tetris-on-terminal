@@ -147,7 +147,7 @@ void input_manager::process_input()
 void game::render()
 {
 	terminal_reset();
-	terminal_put_string("Tetris On Terminal v2.0\n");
+	terminal_put_string(std::string("") + "Tetris On Terminal " + BUILD_VERSION + "\n");
 	terminal_put_string("           By cdkrot\n");
 	terminal_put_string("=====================\n");
 	terminal_put_string("\nGame\n", color_t::yellow);

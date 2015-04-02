@@ -48,7 +48,7 @@ void main_menu::process_input()
 void main_menu::render()
 {
 	terminal_reset();
-	terminal_put_string("Tetris On Terminal v2.0\n");
+	terminal_put_string(std::string("") + "Tetris On Terminal " + BUILD_VERSION + "\n");
 	terminal_put_string("           By cdkrot\n");
 	terminal_put_string("=====================\n");
 	terminal_put_string("\nMain Menu\n", color_t::yellow);
@@ -95,7 +95,7 @@ void menu_credits::process_input()
 void menu_credits::render()
 {
 	terminal_reset();
-	terminal_put_string("Tetris On Terminal v2.0\n");
+	terminal_put_string(std::string("") + "Tetris On Terminal " + BUILD_VERSION + "\n");
 	terminal_put_string("           By cdkrot\n");
 	terminal_put_string("=====================\n");
 	terminal_put_string("\nCredits\n", color_t::yellow);
@@ -116,6 +116,7 @@ void menu_credits::render()
 	terminal_put_string(std::string("") + 
 		"You should have received a copy of the GNU General Public License\n" + 
 		"If not, see <http://www.gnu.org/licenses/>.\n");
+	terminal_put_string(std::string("") + "{This program was built on: " + BUILD_DATE + "}\n");
 }
 
 bool menu_controls::should_run()
@@ -139,7 +140,7 @@ void menu_controls::process_input()
 void menu_controls::render()
 {
 	terminal_reset();
-	terminal_put_string("Tetris On Terminal v2.0\n");
+	terminal_put_string(std::string("") + "Tetris On Terminal " + BUILD_VERSION + "\n");
 	terminal_put_string("           By cdkrot\n");
 	terminal_put_string("=====================\n");
 	terminal_put_string("\nControls\n", color_t::yellow);
