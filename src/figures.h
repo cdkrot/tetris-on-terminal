@@ -21,6 +21,16 @@ struct transform
 	vector<coord_t> src_cells;
 	vector<coord_t> dst_cells;
 	
+	bool operator==(const transform& other) const
+	{
+		return (dx == other.dx) and (dy == other.dy) and (src_cells == other.src_cells) and (dst_cells == other.dst_cells);
+	}
+	
+	bool operator!=(const transform& other) const
+	{
+		return not (*this == other);
+	}
+	
 	static transform zero_transform();
 };
 
@@ -48,7 +58,14 @@ struct figure
 	uint32_t type;
 };
 
+struct figure_type
+{
+	vector<coord_t> coords;
+	bool antigravity_protection;
+	vector<coord_t> rotation_points;
+};
+
 figure get_new_rand_figure();
-vector<coord_t> get_type_image(uint32_t type);
+figure_type get_figure_type_info(uint32_t type);
 
 #endif

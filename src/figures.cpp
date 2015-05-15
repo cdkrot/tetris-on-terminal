@@ -50,14 +50,21 @@ transform compute_move_transform(int32_t dx, int32_t dy, vector<coord_t> data)
 	return res;
 }
 
-transform compute_rotate_transformation(bool rotate_fwd, coord_t rot_cent, vector<coord_t> data)
+transform compute_rotate_transformation(bool rotate_fwd, coord_t rot_cent, vector<coord_t> data, bool enable_gravity_protection)
 {
 	// compute delta center automagically.
 	int32_t new_x = INT32_MAX;
 	int32_t new_y = INT32_MAX;
 	
 	map<coord_t, bool> the_map; // flag: is_dst?
-	auto smart_insert = [&the_map, &new_x, &new_y](coord_t val, bool flag)
+	
+	// idea of anticheat protection in v2.2:
+	// if after rotation gravity center becomes
+	// higher, then will not be able to apply this transform.
+	coord_t old_gravity_center = {0, 0};
+	coord_t new_gravity_center = {0, 0};
+
+	auto update = [&the_map, &new_x, &new_y, &old_gravity_center, &new_gravity_center](coord_t val, bool flag)
 	{
 		auto it = the_map.find(val);
 		if (it == the_map.end())
@@ -66,17 +73,34 @@ transform compute_rotate_transformation(bool rotate_fwd, coord_t rot_cent, vecto
 			the_map.erase(it);
 		if (flag)
 			new_x = min(new_x, val.x), new_y = min(new_y, val.y);
+		
+		if (!flag)
+		{
+			old_gravity_center.x += val.x;
+			old_gravity_center.y += val.y;
+		}
+		else
+		{
+			new_gravity_center.x += val.x;
+			new_gravity_center.y += val.y;
+		}
 	};
+	
+	
 	
 	for (coord_t c: data)
 	{
-		smart_insert(c, false);
+		update(c, false);
+		
 		coord_t delta_center = {c.x - rot_cent.x, c.y - rot_cent.y};
 		if (rotate_fwd) // clockwise
-			smart_insert({rot_cent.x - delta_center.y, rot_cent.y + delta_center.x}, true);
+			update({rot_cent.x - delta_center.y, rot_cent.y + delta_center.x}, true);
 		else
-			smart_insert({rot_cent.x + delta_center.y, rot_cent.y - delta_center.x}, true);
+			update({rot_cent.x + delta_center.y, rot_cent.y - delta_center.x}, true);
 	}
+	
+	if (enable_gravity_protection and old_gravity_center.y > new_gravity_center.y)
+		return transform::zero_transform();
 	
 	transform res = {new_x, new_y, {}, {}};
 	
@@ -89,77 +113,38 @@ transform compute_rotate_transformation(bool rotate_fwd, coord_t rot_cent, vecto
 	return res;
 }
 
-vector<coord_t> get_type_image(uint32_t type)
+figure_type get_figure_type_info(uint32_t type)
 {
-	static vector<coord_t> dat[] = {
-		{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, // 00
-		{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, // 01
-		{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, // 02
-		{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, // 03
-		{{0, 0}, {1, 0}, {1, 1}, {2, 0}}, // 04
-		{{0, 1}, {1, 0}, {1, 1}, {1, 2}}, // 05
-		{{0, 1}, {1, 0}, {1, 1}, {2, 1}}, // 06
-		{{0, 0}, {0, 1}, {0, 2}, {1, 1}}, // 07
-		{{0, 0}, {0, 1}, {0, 2}, {1, 2}}, // 08
-		{{0, 0}, {0, 1}, {1, 0}, {2, 0}}, // 09
-		{{0, 0}, {1, 0}, {1, 1}, {1, 2}}, // 10
-		{{0, 1}, {1, 1}, {2, 0}, {2, 1}}, // 11
-		{{0, 2}, {1, 0}, {1, 1}, {1, 2}}, // 12
-		{{0, 0}, {0, 1}, {1, 1}, {2, 1}}, // 13
-		{{0, 0}, {0, 1}, {0, 2}, {1, 0}}, // 14
-		{{0, 0}, {1, 0}, {2, 0}, {2, 1}}, // 15
-		{{0, 0}, {1, 0}, {2, 0}, {3, 0}}, // 16
-		{{0, 0}, {0, 1}, {0, 2}, {0, 3}}, // 17
-		{{0, 0}, {1, 0}, {2, 0}, {3, 0}}, // 18
-		{{0, 0}, {0, 1}, {0, 2}, {0, 3}}, // 19
-		{{0, 0}, {1, 0}, {1, 1}, {2, 1}}, // 20
-		{{0, 1}, {0, 2}, {1, 0}, {1, 1}}, // 21
-		{{0, 0}, {1, 0}, {1, 1}, {2, 1}}, // 22
-		{{0, 1}, {0, 2}, {1, 0}, {1, 1}}, // 23
-		{{0, 1}, {1, 0}, {1, 1}, {2, 0}}, // 24
-		{{0, 0}, {0, 1}, {1, 1}, {1, 2}}, // 25
-		{{0, 1}, {1, 0}, {1, 1}, {2, 0}}, // 26
-		{{0, 0}, {0, 1}, {1, 1}, {1, 2}}, // 27
-	};
-	return dat[type];
-}
-
-vector<coord_t> get_rotation_points_by_type(uint32_t type)
-{
-	static vector<coord_t> dat[] = {
-		{}, // 0
-		{}, // 1
-		{}, // 2
-		{}, // 3
-		{{1, 0}}, // 4
-		{{1, 1}}, // 5
-		{{0, 1}}, // 6
-		{{1, 1}}, // 7
-		
-		{{0, 1}}, // 8
-		{{1, 0}}, // 9
-		{{1, 1}}, // 10
-		{{1, 1}}, // 11
-		
-		{{1, 1}}, // 12
-		{{1, 1}}, // 13
-		{{0, 1}}, // 14
-		{{1, 0}}, // 15
-		
-		{{1, 0}, {2, 0}}, // 16
-		{{0, 1}, {0, 2}}, // 17
-		{{1, 0}, {2, 0}}, // 18
-		{{0, 1}, {0, 2}}, // 19
-		
-		{{1, 0}, {1, 1}}, // 20
-		{{0, 1}, {1, 1}}, // 21
-		{{1, 0}, {1, 1}}, // 22
-		{{0, 1}, {1, 1}}, // 23
-		
-		{{1, 0}, {1, 1}}, // 24
-		{{0, 1}, {1, 1}}, // 25
-		{{1, 0}, {1, 1}}, // 26
-		{{0, 1}, {1, 1}}, // 27
+	// new in v2.2, now all data sits in one place.
+	static vector<figure_type> dat = {
+		{{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, 0, {}},// 00
+		{{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, 0, {}},// 01
+		{{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, 0, {}},// 02
+		{{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, 0, {}},// 03
+		{{{0, 0}, {1, 0}, {1, 1}, {2, 0}}, 0, {{1, 0}}},// 04
+		{{{0, 1}, {1, 0}, {1, 1}, {1, 2}}, 0, {{1, 1}}},// 05
+		{{{0, 1}, {1, 0}, {1, 1}, {2, 1}}, 0, {{0, 1}}},// 06
+		{{{0, 0}, {0, 1}, {0, 2}, {1, 1}}, 0, {{1, 1}}},// 07
+		{{{0, 0}, {0, 1}, {0, 2}, {1, 2}}, 0, {{0, 1}}},// 08
+		{{{0, 0}, {0, 1}, {1, 0}, {2, 0}}, 0, {{1, 0}}},// 09
+		{{{0, 0}, {1, 0}, {1, 1}, {1, 2}}, 0, {{1, 1}}},// 10
+		{{{0, 1}, {1, 1}, {2, 0}, {2, 1}}, 0, {{1, 1}}},// 11
+		{{{0, 2}, {1, 0}, {1, 1}, {1, 2}}, 0, {{1, 1}}},// 12
+		{{{0, 0}, {0, 1}, {1, 1}, {2, 1}}, 0, {{1, 1}}},// 13
+		{{{0, 0}, {0, 1}, {0, 2}, {1, 0}}, 0, {{0, 1}}},// 14
+		{{{0, 0}, {1, 0}, {2, 0}, {2, 1}}, 0, {{1, 0}}},// 15
+		{{{0, 0}, {1, 0}, {2, 0}, {3, 0}}, 1, {{1, 0}, {2, 0}}},// 16
+		{{{0, 0}, {0, 1}, {0, 2}, {0, 3}}, 1, {{0, 1}, {0, 2}}},// 17
+		{{{0, 0}, {1, 0}, {2, 0}, {3, 0}}, 1, {{1, 0}, {2, 0}}},// 18
+		{{{0, 0}, {0, 1}, {0, 2}, {0, 3}}, 1, {{0, 1}, {0, 2}}},// 19
+		{{{0, 0}, {1, 0}, {1, 1}, {2, 1}}, 1, {{1, 0}, {1, 1}}},// 20
+		{{{0, 1}, {0, 2}, {1, 0}, {1, 1}}, 1, {{0, 1}, {1, 1}}},// 21
+		{{{0, 0}, {1, 0}, {1, 1}, {2, 1}}, 1, {{1, 0}, {1, 1}}},// 22
+		{{{0, 1}, {0, 2}, {1, 0}, {1, 1}}, 1, {{0, 1}, {1, 1}}},// 23
+		{{{0, 1}, {1, 0}, {1, 1}, {2, 0}}, 1, {{1, 0}, {1, 1}}},// 24
+		{{{0, 0}, {0, 1}, {1, 1}, {1, 2}}, 1, {{0, 1}, {1, 1}}},// 25
+		{{{0, 1}, {1, 0}, {1, 1}, {2, 0}}, 1, {{1, 0}, {1, 1}}},// 26
+		{{{0, 0}, {0, 1}, {1, 1}, {1, 2}}, 1, {{0, 1}, {1, 1}}} // 27
 	};
 	return dat[type];
 }
@@ -182,20 +167,24 @@ multitransform get_transform_by_type_and_id(uint32_t type, uint32_t id)
 		// really, it is worth it.
 		for (uint32_t i = 0; i != NUM_TYPES; i++)
 		{
-			MOV_DWN[i] = {compute_move_transform( 0, 1, get_type_image(i))};
-			MOV_LFT[i] = {compute_move_transform(-1, 0, get_type_image(i))};
-			MOV_RGH[i] = {compute_move_transform(+1, 0, get_type_image(i))};
+			auto the_figure_type = get_figure_type_info(i);
+			MOV_DWN[i] = {compute_move_transform( 0, 1, the_figure_type.coords)};
+			MOV_LFT[i] = {compute_move_transform(-1, 0, the_figure_type.coords)};
+			MOV_RGH[i] = {compute_move_transform(+1, 0, the_figure_type.coords)};
 			
-			auto rot_points = get_rotation_points_by_type(i);
-			if (rot_points.empty())
+			if (the_figure_type.rotation_points.empty())
 				MOV_FWD[i] = MOV_BCK[i] = {transform::zero_transform()};
 			else
 			{
 				MOV_FWD[i] = MOV_BCK[i] = {};
-				for (auto e: rot_points)
+				for (auto e: the_figure_type.rotation_points)
 				{
-					MOV_FWD[i].push_back(compute_rotate_transformation(1, e, get_type_image(i)));
-					MOV_BCK[i].push_back(compute_rotate_transformation(0, e, get_type_image(i)));
+					auto transform_fwd = compute_rotate_transformation(1, e, the_figure_type.coords, the_figure_type.antigravity_protection);
+					auto transform_bkw = compute_rotate_transformation(0, e, the_figure_type.coords, the_figure_type.antigravity_protection);
+					if (transform_fwd != transform::zero_transform())
+						MOV_FWD[i].push_back(transform_fwd);
+					if (transform_bkw != transform::zero_transform())
+						MOV_BCK[i].push_back(transform_bkw);
 				}
 			}
 		}
@@ -220,7 +209,7 @@ void figure::spawn(vector<vector<char_data>>& game_field)
 {	
 	char_data ch = {get_random_possible_char(), get_random_possible_color()};
 	
-	for (coord_t c: get_type_image(type))
+	for (coord_t c: get_figure_type_info(type).coords)
 		game_field[c.y][c.x] = ch;
 }
 

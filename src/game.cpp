@@ -166,13 +166,13 @@ void game::render()
 	if (cur_figure_mgr.state != 0)
 	{
 		auto fig = cur_figure_mgr.cur_figure;
-		auto fig_img = get_type_image(fig.get_type());
-		for (auto crd: fig_img)
+		auto figure_type = get_figure_type_info(fig.get_type());
+		for (auto crd: figure_type.coords)
 			if (the_map.find(fig.x + crd.x) == the_map.end())
 				the_map.emplace(fig.x + crd.x, fig.y + crd.y);
 			else
 				the_map[fig.x + crd.x] = max(the_map[fig.x + crd.x], fig.y + crd.y); // the deepest.
-		fig_color = game_field[fig.y + fig_img[0].y][fig.x + fig_img[0].x].color;
+		fig_color = game_field[fig.y + figure_type.coords[0].y][fig.x + figure_type.coords[0].x].color;
 	}
 	for (uint32_t i = 0; i != GAME_HEIGHT; i++)
 	{

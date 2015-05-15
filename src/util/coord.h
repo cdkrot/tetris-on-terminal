@@ -13,6 +13,10 @@ struct coord_t
 	{
 		return x < other.x or (x == other.x and y < other.y);
 	}
+	bool operator==(const coord_t other) const
+	{
+		return (x == other.x) and (y == other.y);
+	}
 };
 
 #endif
