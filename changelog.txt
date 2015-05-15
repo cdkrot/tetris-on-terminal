@@ -1,3 +1,7 @@
+v2.2
+* Anticheat system, which prevents rotation glitches with some figures.
+* Introducing clear.sh, tiny dev util.
+
 v2.1
 * build system change
 * small restucturization (more to come)
