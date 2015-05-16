@@ -13,7 +13,7 @@ using std::string;
 using std::set;
 using std::max;
 
-game::game(game_settings gm_settings): gm_settings(gm_settings), rainbow_feat(this)
+game::game(game_settings gm_settings): gm_settings(gm_settings), input_mgr(this), cur_figure_mgr(this), rainbow_feat(this)
 {
 	state = 0; // running.
 	game_field.resize(GAME_HEIGHT);
@@ -22,10 +22,6 @@ game::game(game_settings gm_settings): gm_settings(gm_settings), rainbow_feat(th
 		line.resize(GAME_WIDTH);
 		std::fill(line.begin(), line.end(), char_data::space());
 	}
-	
-	cur_figure_mgr.the_game = this;
-	cur_figure_mgr.set_wait_spwn();
-	input_mgr.the_game = this;
 }
 
 game::~game()
@@ -152,7 +148,7 @@ void game::render()
 	terminal_put_string("=====================\n");
 	terminal_put_string("\nGame\n", color_t::yellow);
 
-	const std::string dat[4] = {"00", "50"};
+	const std::string dat[2] = {"00", "50"};
 	std::string score_string = std::to_string(user_score / 2) + "." + dat[user_score % 2];
 	std::string multipl_string = std::to_string(cur_figure_mgr.get_figure_modifier() / 2) + "."
 		+ dat[cur_figure_mgr.get_figure_modifier() % 2];
@@ -163,9 +159,9 @@ void game::render()
 	// render here
 	map<uint32_t, uint32_t> the_map;
 	color_t fig_color;
-	if (cur_figure_mgr.state != 0)
+	if (not cur_figure_mgr.is_wait_spwn())
 	{
-		auto fig = cur_figure_mgr.cur_figure;
+		auto fig = cur_figure_mgr.get_figure();
 		auto figure_type = get_figure_type_info(fig.get_type());
 		for (auto crd: figure_type.coords)
 			if (the_map.find(fig.x + crd.x) == the_map.end())

@@ -16,7 +16,7 @@ class game;
 class cur_figure_manager
 {
 	public:
-		cur_figure_manager() = default; // note: after creation you need to call set_wait_spwn().
+		cur_figure_manager(game* the_game): the_game(the_game) {set_wait_spwn();}
 		~cur_figure_manager() = default;
 		
 		void update();
@@ -28,20 +28,20 @@ class cur_figure_manager
 		void set_wait_spwn();
 		void set_freeze();
 		void set_fall(){state = 2;}
+		figure& get_figure(){return cur_figure;}
 	private:
 		uint32_t figures_count = 0;
 		uint32_t log_figures_count = 2;
 		uint32_t state; // 0 - WAIT_SPWN, 1 - FREEZE, 2 - FALL.
 		clock_t ticks;
-		game* the_game = nullptr;
+		game* the_game;
 		figure cur_figure = figure(UINT32_MAX);
-		friend game;
 };
 
 class input_manager
 {
 	public:
-		input_manager(): move_horizontal(0), move_rotational(0), force_fall(false) {}
+		input_manager(game* the_game): move_horizontal(0), move_rotational(0), force_fall(false), the_game(the_game) {}
 		void process_input();
 		
 		int32_t move_horizontal;
@@ -49,7 +49,6 @@ class input_manager
 		bool force_fall;
 	private:
 		game* the_game;
-		friend game;
 };
 
 class rainbow_feature
