@@ -1,3 +1,8 @@
+v2.3
+* Some code review and refactoring.
+* Get rid of a warning in release build mode
+* merged together build-DBG.sh and build-REL.sh into build.sh
+
 v2.2
 * Anticheat system, which prevents rotation glitches with some figures.
 * Introducing clear.sh, tiny dev util.

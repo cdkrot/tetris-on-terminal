@@ -76,6 +76,7 @@ class game: public iscreen
 		virtual void update_game();
 		virtual void process_input();
 		virtual void render();
+		void update_score();
 		void check_dead();
 		bool should_run() {return state != 2;}
 		bool is_running() {return state == 0;}
@@ -88,7 +89,7 @@ class game: public iscreen
 		void set_dead() {state = 3;}
 		game_settings get_game_settings(){return gm_settings;}
 	private:
-		uint32_t state; // 0: RUNNING, 1: PAUSED, 2: STOPPED, 3: DEAD.
+		uint32_t state = 4; // 0: RUNNING, 1: PAUSED, 2: STOPPED, 3: DEAD, 4 INITIALIZING.
 		std::vector<std::vector<char_data>> game_field;
 		
 		uint32_t user_score = 0;

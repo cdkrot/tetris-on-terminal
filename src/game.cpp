@@ -15,13 +15,13 @@ using std::max;
 
 game::game(game_settings gm_settings): gm_settings(gm_settings), input_mgr(this), cur_figure_mgr(this), rainbow_feat(this)
 {
-	state = 0; // running.
 	game_field.resize(GAME_HEIGHT);
 	for (vector<char_data>& line: game_field)
 	{
 		line.resize(GAME_WIDTH);
 		std::fill(line.begin(), line.end(), char_data::space());
 	}
+	state = 0; // running.
 }
 
 game::~game()
@@ -42,7 +42,13 @@ void game::update_game()
 	// figure_modifier grows like logarithm from count of figures.
 	//
 	
-	if (cur_figure_mgr.is_wait_spwn())
+	rainbow_feat.update();
+	cur_figure_mgr.update();
+}
+
+void game::update_score()
+{
+	if (is_running() and cur_figure_mgr.is_wait_spwn())
 	{
 		auto check_row = [](const vector<char_data>& v) -> bool
 		{
@@ -85,10 +91,9 @@ void game::update_game()
 		}
 		if (n_multiplier != 0)
 			user_score += (1 << (n_multiplier - 1)) * delta_score * cur_figure_mgr.get_figure_modifier();
+		
+		//vector<vector<bool>> dfs_map;
 	}
-	
-	rainbow_feat.update();
-	cur_figure_mgr.update();
 }
 
 void game::check_dead()
@@ -158,7 +163,7 @@ void game::render()
 	
 	// render here
 	map<uint32_t, uint32_t> the_map;
-	color_t fig_color;
+	color_t cur_fig_color = color_t::white;
 	if (not cur_figure_mgr.is_wait_spwn())
 	{
 		auto fig = cur_figure_mgr.get_figure();
@@ -168,7 +173,7 @@ void game::render()
 				the_map.emplace(fig.x + crd.x, fig.y + crd.y);
 			else
 				the_map[fig.x + crd.x] = max(the_map[fig.x + crd.x], fig.y + crd.y); // the deepest.
-		fig_color = game_field[fig.y + figure_type.coords[0].y][fig.x + figure_type.coords[0].x].color;
+		cur_fig_color = game_field[fig.y + figure_type.coords[0].y][fig.x + figure_type.coords[0].x].color;
 	}
 	for (uint32_t i = 0; i != GAME_HEIGHT; i++)
 	{
@@ -180,7 +185,7 @@ void game::render()
 		for (uint32_t j = 0; j != GAME_WIDTH; j++)
 		{
 			if (gm_settings.ticks_per_rainbow == UINT32_MAX and game_field[i][j].character == ' ' and the_map.find(j) != the_map.end() and the_map[j] < i)
-				terminal_put_char('.', fig_color);
+				terminal_put_char('.', cur_fig_color);
 			else
 			{
 				if (game_field[i][j].character != ' ' and the_map.find(j) != the_map.end() and the_map[j] < i)
@@ -215,6 +220,7 @@ void cur_figure_manager::set_wait_spwn()
 {
 	state = 0;
 	ticks = the_game->get_game_settings().no_spawn_ticks;
+	the_game->update_score();
 }
 
 void cur_figure_manager::update()
